@@ -26,14 +26,19 @@ def sort_players(players):
     return inexperienced, experienced
 
 
-def assign_players(players, teams):
+def assign_players(players, team_list):
     index = 0
     # sort players into experienced and un-experienced
     # returns 2 groups, inexperienced and experienced
     sorted_players = sort_players(players)
     # list of players to return to the script
     player_list = []
-    # loop through the group
+    # list of teams
+    teams = []
+    # break team dictionary into a list
+    for key, value in team_list.items():
+        teams.append(key)
+    # loop through the 2 player groups
     for group in sorted_players:
         # set range = to the number of teams, use this
         # value to select a team based on its current index
@@ -55,22 +60,53 @@ def assign_players(players, teams):
     return player_list
 
 
+def populate_teams(team_list, player_list):
+
+    for player in player_list:
+        team = player['Team']
+        if team in team_list:
+            team_list[team].append(player)
+
+    return team_list
+
+
+def write_teams(teams):
+    file = open('teams.txt', 'a')
+    for team, players in teams.items():
+        file.write(team + "\n")
+        for player in players:
+            # set vars to the write line is easier to read
+            name = player['Name']
+            experience = player['Soccer Experience']
+            guardians = player['Guardian Name(s)']
+            file.write("{}, {}, {}\n".format(name, experience, guardians))
+        file.write("\n")
+
+
+
 if __name__ == "__main__":
     # open file & get players
     imported_players = import_players('soccer_players.csv', '', ',')
 
     # list of team names
-    team_names = [
-        "Sharks",
-        "Dragons",
-        "Raptors"
-    ]
+    team_list = {
+        'Sharks': [],
+        'Dragons': [],
+        'Raptors': []
+    }
 
-    player_list = assign_players(imported_players, team_names)
+    # assign players to teams
+    assigned_players = assign_players(imported_players, team_list)
+    # populate team lists
+    teams = populate_teams(team_list, assigned_players)
 
-    for player in player_list:
-        print(player['Name'], player['Team'], player['Soccer Experience'])
+    # testing
+    for team, players in teams.items():
+        print("**" + team + "**")
+        for player in players:
+            print(player['Name'], player['Soccer Experience'])
+        print("\n")
 
+    # output file
+    write_teams(teams)
 
-# save to teams
-# output file
