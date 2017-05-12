@@ -26,6 +26,8 @@ def sort_players(players):
     return inexperienced, experienced
 
 
+# assign players to teams. Store the teams assignments with
+# the player records.
 def assign_players(players, team_list):
     index = 0
     # sort players into experienced and un-experienced
@@ -60,8 +62,8 @@ def assign_players(players, team_list):
     return player_list
 
 
+# Populate the list of teams
 def populate_teams(team_list, player_list):
-
     for player in player_list:
         team = player['Team']
         if team in team_list:
@@ -70,10 +72,14 @@ def populate_teams(team_list, player_list):
     return team_list
 
 
+# Write the teams file
 def write_teams(teams):
     file = open('teams.txt', 'a')
+    # loop through the teams
     for team, players in teams.items():
+        # for each team, write the team name
         file.write(team + "\n")
+        # loop through players and write player info
         for player in players:
             # set vars to the write line is easier to read
             name = player['Name']
@@ -83,12 +89,38 @@ def write_teams(teams):
         file.write("\n")
 
 
+# generate parent letters
+def write_parent_letters(players):
+    # for each player
+    for player in players:
+        # set up vars
+        guardian = player['Guardian Name(s)']
+        team = player['Team']
+        name = player['Name']
+        date = 'August 12th'
+        time = '6am'
+        # set up lower case _ separated file names
+        filename = name.replace(' ', '_')
+        filename = filename.lower() + '.txt'
+        # put these in a separate directory, to keep things a little neater...
+        file_path = 'welcome-letters/' + filename
+        file = open(file_path, 'a')
+        # stuff to write
+        file.write('Dear {},\n\n'
+                   'We are pleased to inform you that your child, {}, has been assigned '
+                   'to the {} soccer team! \n'
+                   'Practice begins {} at {}.\n'
+                   'We cannot wait to see you!\n\n'
+                   'Thanks,  \n '
+                   '- Soccer Lord'.format(guardian, name, team, date, time))
 
+
+# application
 if __name__ == "__main__":
     # open file & get players
     imported_players = import_players('soccer_players.csv', '', ',')
 
-    # list of team names
+    # team names
     team_list = {
         'Sharks': [],
         'Dragons': [],
@@ -97,16 +129,12 @@ if __name__ == "__main__":
 
     # assign players to teams
     assigned_players = assign_players(imported_players, team_list)
+
     # populate team lists
     teams = populate_teams(team_list, assigned_players)
-
-    # testing
-    for team, players in teams.items():
-        print("**" + team + "**")
-        for player in players:
-            print(player['Name'], player['Soccer Experience'])
-        print("\n")
 
     # output file
     write_teams(teams)
 
+    # write parent letters
+    write_parent_letters(assigned_players)
